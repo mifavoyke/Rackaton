@@ -1,12 +1,12 @@
-# Re-import necessary libraries due to code execution environment reset
+# Re-import libraries after kernel reset
 import pandas as pd
 import numpy as np
 
 # Set random seed and number of rows
 np.random.seed(42)
-n = 1000
+n = 5000
 
-# Core patient data
+# Generate base data
 age_at_diagnosis = np.random.randint(30, 91, n)
 tumor_size = np.random.choice(['T1', 'T2', 'T3', 'T4'], size=n, p=[0.4, 0.35, 0.2, 0.05])
 N_stage = np.random.choice(['N0', 'N1', 'N2', 'N3'], size=n, p=[0.5, 0.3, 0.15, 0.05])
@@ -21,8 +21,9 @@ surgery_type = np.random.choice(['none', 'lumpectomy', 'mastectomy'], size=n, p=
 chemo = np.random.choice([0, 1], size=n, p=[0.4, 0.6])
 radio = np.random.choice([0, 1], size=n, p=[0.3, 0.7])
 hormone_therapy = np.random.choice([0, 1], size=n, p=[0.3, 0.7])
+# may add the presence flag of BRCA1 or BRCA2 genes
 
-# Base hazard influenced by clinical stage and tumor grade
+# Baseline hazard model
 stage_map = {'I': 1, 'II': 2, 'III': 3, 'IV': 4}
 clinical_stage_numeric = np.array([stage_map[stage] for stage in clinical_stage])
 baseline_hazard = clinical_stage_numeric * tumor_grade
@@ -30,22 +31,34 @@ time_to_event = np.random.exponential(scale=60 / baseline_hazard)
 time_to_event = np.clip(time_to_event, 1, 120)
 event = np.random.choice([0, 1], size=n, p=[0.7, 0.3])
 
-# Lifestyle and biomarker features
+# Extended features
+# 1. Age of menopause and had_menopause flag
+age_of_menopause = []
+for age in age_at_diagnosis:
+    if age >= 55:
+        menopausal_age = np.random.randint(45, 56)
+        age_of_menopause.append(menopausal_age)
+    elif age <= 45:
+        age_of_menopause.append(0) # can still be very low probability - add
+    else:
+        if np.random.rand() < 0.2:
+            menopausal_age = np.random.randint(45, age + 1)
+            age_of_menopause.append(menopausal_age)
+        else:
+            age_of_menopause.append(0)
+# 2. Alcohol and smoking score
+alcohol = np.random.choice([0, 1], size=n, p=[0.6, 0.4])
+smoking = np.random.choice([0, 1], size=n, p=[0.7, 0.3])
+alcohol_smoking_score = alcohol + smoking
+# 3. Family history score
+family_history_score = np.random.choice([0, 1, 2], size=n, p=[0.6, 0.3, 0.1])
+# 4. Ki67 score
+ki67_score = np.random.beta(a=2, b=5, size=n) * 100
+ki67_score = np.round(ki67_score, 1)
+# 5. BMI
 BMI = np.clip(np.random.normal(loc=26, scale=5, size=n), 16, 45)
-alcohol_smoking = np.random.choice([0, 1], size=n, p=[0.7, 0.3])
-family_history = np.random.choice([0, 1], size=n, p=[0.75, 0.25])
-ki67 = np.random.choice([0, 1], size=n, p=[0.2, 0.8])
-menopausal_status = np.where(age_at_diagnosis >= 50, 1, 0)
 
-# Introduce 10% missing values as zeros
-missing_mask = np.random.rand(n) < 0.1
-BMI[missing_mask] = 0
-alcohol_smoking[missing_mask] = 0
-family_history[missing_mask] = 0
-ki67[missing_mask] = 0
-menopausal_status[missing_mask] = 0
-
-# Construct DataFrame
+# Compile into DataFrame
 df = pd.DataFrame({
     'age_at_diagnosis': age_at_diagnosis,
     'tumor_size': tumor_size,
@@ -61,13 +74,13 @@ df = pd.DataFrame({
     'chemo': chemo,
     'radio': radio,
     'hormone_therapy': hormone_therapy,
-    'time_to_event': time_to_event.round(1),
+    'time_to_event': np.round(time_to_event, 1),
     'event': event,
     'BMI': BMI.round(1),
-    'alcohol_smoking': alcohol_smoking,
-    'family_history': family_history,
-    'ki67': ki67,
-    'menopausal_status': menopausal_status
+    'family_history_score': family_history_score,
+    'alcohol_smoking_score': alcohol_smoking_score,
+    'ki67_score': ki67_score,
+    'age_of_menopause': age_of_menopause
 })
 
 print(df.head())
