@@ -16,30 +16,26 @@
 import pandas as pd
 from lifelines import CoxPHFitter
 from sklearn.model_selection import train_test_split
+from lifelines.utils import concordance_index
 
 df = pd.read_csv("synthetic_data.csv")
-optional_features = ['BMI', 'family_history_score', 'alcohol_smoking_score', 'ki67_score', 'age_of_menopause']
-df[optional_features] = df[optional_features].replace(0, pd.NA)
 df_full = df.dropna()
-df_reduced = df.drop(columns=optional_features)
-categorical_cols = ['tumor_size', 'N_stage', 'M_stage', 'clinical_stage',
-                    'histology_type', 'surgery_type']
+categorical_cols = ['tumor_size', 'N_stage', 'M_stage', 'clinical_stage', 'histology_type', 'surgery_type']
 df_full = pd.get_dummies(df_full, columns=categorical_cols, drop_first=True)
-df_reduced = pd.get_dummies(df_reduced, columns=categorical_cols, drop_first=True)
 low_variance_cols = [col for col in df_full.columns if df_full[col].nunique() == 1]
 print("Dropping low-variance cols:", low_variance_cols)
 df_full.drop(columns=low_variance_cols, inplace=True)
-
-train_full, _ = train_test_split(df_full, test_size=0.2, random_state=42)
-train_reduced, _ = train_test_split(df_reduced, test_size=0.2, random_state=42)
+train_full, test_full = train_test_split(df_full, test_size=0.2, random_state=42)
 print("\nCox Model with All Features:")
 cph_full = CoxPHFitter(penalizer=0.1)
 cph_full.fit(train_full, duration_col='time_to_event', event_col='event')
 cph_full.print_summary()
-print("\nCox Model WITHOUT Optional Features:")
-cph_reduced = CoxPHFitter()
-cph_reduced.fit(train_reduced, duration_col='time_to_event', event_col='event')
-cph_reduced.print_summary()
+c_index = cph_full.concordance_index_
+print(f"Train C-index: {c_index:.3f}")
+predicted_partial_hazards = cph_full.predict_partial_hazard(test_full) # Predict on test set
+c_index_test = concordance_index(test_full['time_to_event'], -predicted_partial_hazards, test_full['event']) # Calculate test C-index
+print(f"Test C-index: {c_index_test:.3f}")
+cph_full.save('../backend/model/cox_model.pkl')
 
 # 🧬 1. Demographic & Identification Data
 # English	                                    Czech
