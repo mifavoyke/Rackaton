@@ -9,59 +9,236 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { InfoCircle } from "@/components/info-circle"
 import { Loader2 } from "lucide-react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { useState } from "react"
 
 const formSchema = z.object({
-  age_at_diagnosis: z.coerce.number().int().min(18).max(100),
-  tumor_size: z.coerce.number().min(0.1).max(150),
-  N_stage: z.string(),
-  M_stage: z.string(),
-  clinical_stage: z.string(),
-  tumor_grade: z.coerce.number().int().min(1).max(3),
-  ER_status: z.string(),
-  PR_status: z.string(),
-  HER2_status: z.string(),
-  histology_type: z.string(),
-  surgery_type: z.string(),
-  chemo: z.string(),
-  radio: z.string(),
-  hormone_therapy: z.string(),
-  BMI: z.coerce.number().min(10).max(50),
-  alcohol_smoking: z.string(),
-  family_history: z.string(),
-  ki67: z.coerce.number().min(0).max(100),
-  menopausal_status: z.string(),
+  vekova_kategorie_10let_dg: z.coerce.number().int().min(20).max(100),
+  lateralita_kod: z.coerce.number().int().min(1).max(4),
+  grading: z.coerce.number().int().min(1).max(3),
+  stadium_2: z.coerce.number().int().min(0).max(1),
+  stadium_3: z.coerce.number().int().min(0).max(1),
+  stadium_4: z.coerce.number().int().min(0).max(1),
+  stadium_X: z.coerce.number().int().min(0).max(1),
+  stadium_Y: z.coerce.number().int().min(0).max(1),
+  je_nl_chemo: z.coerce.number().int().min(0).max(1),
+  je_nl_target: z.coerce.number().int().min(0).max(1),
+  je_nl_radio: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_1: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_1a: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_1b: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_1c: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_1m: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_2: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_2a: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_2b: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_2c: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_3: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_4: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_4a: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_4b: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_4c: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_4d: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_a: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_is: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_isD: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_isL: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_isP: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_1: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_1a: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_1b: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_1c: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_1m: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_2: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_2a: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_2b: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_3: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_3a: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_3b: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_3c: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_m_kod_1: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_m_kod_2: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_m_kod_3: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_1a2: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_3b: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_t_kod_X: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_2c: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_n_kod_X: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_m_kod_1d: z.coerce.number().int().min(0).max(1),
+  tnm_klasifikace_m_kod_X: z.coerce.number().int().min(0).max(1),
+  rok_dg: z.coerce.number().int().min(1900).max(new Date().getFullYear()),
 })
 
 interface PredictionFormProps {
   onSubmit: (values: z.infer<typeof formSchema>) => void
   isLoading: boolean
+  lang: string
 }
 
-export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
+export function PredictionForm({ onSubmit, isLoading, lang }: PredictionFormProps) {
+  const isEnglish = lang === "en"
+  const currentYear = new Date().getFullYear()
+
+  // State for radio button selections
+  const [selectedTClassification, setSelectedTClassification] = useState<string>("tnm_klasifikace_t_kod_1")
+  const [selectedNClassification, setSelectedNClassification] = useState<string | null>(null)
+  const [selectedMClassification, setSelectedMClassification] = useState<string | null>(null)
+  const [selectedStage, setSelectedStage] = useState<string>("stage_1")
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      age_at_diagnosis: 55,
-      tumor_size: 2.5,
-      N_stage: "N0",
-      M_stage: "M0",
-      clinical_stage: "Stage I",
-      tumor_grade: 2,
-      ER_status: "Positive",
-      PR_status: "Positive",
-      HER2_status: "Negative",
-      histology_type: "Invasive ductal",
-      surgery_type: "Lumpectomy",
-      chemo: "Yes",
-      radio: "Yes",
-      hormone_therapy: "Yes",
-      BMI: 24.5,
-      alcohol_smoking: "Non-smoker",
-      family_history: "No",
-      ki67: 15,
-      menopausal_status: "Postmenopausal",
+      vekova_kategorie_10let_dg: 50,
+      lateralita_kod: 1,
+      grading: 2,
+      stadium_2: 0,
+      stadium_3: 0,
+      stadium_4: 0,
+      stadium_X: 0,
+      stadium_Y: 0,
+      je_nl_chemo: 0,
+      je_nl_target: 0,
+      je_nl_radio: 1,
+      tnm_klasifikace_t_kod_1: 1,
+      tnm_klasifikace_t_kod_1a: 0,
+      tnm_klasifikace_t_kod_1b: 0,
+      tnm_klasifikace_t_kod_1c: 0,
+      tnm_klasifikace_t_kod_1m: 0,
+      tnm_klasifikace_t_kod_2: 0,
+      tnm_klasifikace_t_kod_2a: 0,
+      tnm_klasifikace_t_kod_2b: 0,
+      tnm_klasifikace_t_kod_2c: 0,
+      tnm_klasifikace_t_kod_3: 0,
+      tnm_klasifikace_t_kod_4: 0,
+      tnm_klasifikace_t_kod_4a: 0,
+      tnm_klasifikace_t_kod_4b: 0,
+      tnm_klasifikace_t_kod_4c: 0,
+      tnm_klasifikace_t_kod_4d: 0,
+      tnm_klasifikace_t_kod_a: 0,
+      tnm_klasifikace_t_kod_is: 0,
+      tnm_klasifikace_t_kod_isD: 0,
+      tnm_klasifikace_t_kod_isL: 0,
+      tnm_klasifikace_t_kod_isP: 0,
+      tnm_klasifikace_n_kod_1: 0,
+      tnm_klasifikace_n_kod_1a: 0,
+      tnm_klasifikace_n_kod_1b: 0,
+      tnm_klasifikace_n_kod_1c: 0,
+      tnm_klasifikace_n_kod_1m: 0,
+      tnm_klasifikace_n_kod_2: 0,
+      tnm_klasifikace_n_kod_2a: 0,
+      tnm_klasifikace_n_kod_2b: 0,
+      tnm_klasifikace_n_kod_3: 0,
+      tnm_klasifikace_n_kod_3a: 0,
+      tnm_klasifikace_n_kod_3b: 0,
+      tnm_klasifikace_n_kod_3c: 0,
+      tnm_klasifikace_m_kod_1: 0,
+      tnm_klasifikace_m_kod_2: 0,
+      tnm_klasifikace_m_kod_3: 0,
+      tnm_klasifikace_t_kod_1a2: 0,
+      tnm_klasifikace_t_kod_3b: 0,
+      tnm_klasifikace_t_kod_X: 0,
+      tnm_klasifikace_n_kod_2c: 0,
+      tnm_klasifikace_n_kod_X: 0,
+      tnm_klasifikace_m_kod_1d: 0,
+      tnm_klasifikace_m_kod_X: 0,
+      rok_dg: currentYear - 1,
     },
   })
+
+  const handleTNMTSelection = (value: string) => {
+    // Reset all T values
+    const tFields = [
+      "tnm_klasifikace_t_kod_1",
+      "tnm_klasifikace_t_kod_1a",
+      "tnm_klasifikace_t_kod_1b",
+      "tnm_klasifikace_t_kod_1c",
+      "tnm_klasifikace_t_kod_1m",
+      "tnm_klasifikace_t_kod_2",
+      "tnm_klasifikace_t_kod_2a",
+      "tnm_klasifikace_t_kod_2b",
+      "tnm_klasifikace_t_kod_2c",
+      "tnm_klasifikace_t_kod_3",
+      "tnm_klasifikace_t_kod_4",
+      "tnm_klasifikace_t_kod_4a",
+      "tnm_klasifikace_t_kod_4b",
+      "tnm_klasifikace_t_kod_4c",
+      "tnm_klasifikace_t_kod_4d",
+      "tnm_klasifikace_t_kod_a",
+      "tnm_klasifikace_t_kod_is",
+      "tnm_klasifikace_t_kod_isD",
+      "tnm_klasifikace_t_kod_isL",
+      "tnm_klasifikace_t_kod_isP",
+    ]
+
+    tFields.forEach((field) => {
+      form.setValue(field as any, 0)
+    })
+
+    // Set the selected value
+    form.setValue(value as any, 1)
+    setSelectedTClassification(value)
+  }
+
+  const handleTNMNSelection = (value: string | null) => {
+    // Reset all N values
+    const nFields = [
+      "tnm_klasifikace_n_kod_1",
+      "tnm_klasifikace_n_kod_1a",
+      "tnm_klasifikace_n_kod_1b",
+      "tnm_klasifikace_n_kod_1c",
+      "tnm_klasifikace_n_kod_1m",
+      "tnm_klasifikace_n_kod_2",
+      "tnm_klasifikace_n_kod_2a",
+      "tnm_klasifikace_n_kod_2b",
+      "tnm_klasifikace_n_kod_3",
+      "tnm_klasifikace_n_kod_3a",
+      "tnm_klasifikace_n_kod_3b",
+      "tnm_klasifikace_n_kod_3c",
+    ]
+
+    nFields.forEach((field) => {
+      form.setValue(field as any, 0)
+    })
+
+    // Set the selected value if not null
+    if (value) {
+      form.setValue(value as any, 1)
+    }
+    setSelectedNClassification(value)
+  }
+
+  const handleTNMMSelection = (value: string | null) => {
+    // Reset all M values
+    const mFields = ["tnm_klasifikace_m_kod_1", "tnm_klasifikace_m_kod_2", "tnm_klasifikace_m_kod_3"]
+
+    mFields.forEach((field) => {
+      form.setValue(field as any, 0)
+    })
+
+    // Set the selected value if not null
+    if (value) {
+      form.setValue(value as any, 1)
+    }
+    setSelectedMClassification(value)
+  }
+
+  const handleStageSelection = (value: string) => {
+    // Reset all stage values
+    form.setValue("stadium_2", 0)
+    form.setValue("stadium_3", 0)
+    form.setValue("stadium_4", 0)
+    form.setValue("stadium_X", 0)
+    form.setValue("stadium_Y", 0)
+
+    // Set the selected stage value
+    if (value === "stage_2") {
+      form.setValue("stadium_2", 1)
+    } else if (value === "stage_3") {
+      form.setValue("stadium_3", 1)
+    }
+
+    setSelectedStage(value)
+  }
 
   return (
     <Form {...form}>
@@ -69,21 +246,32 @@ export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Patient Demographics */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Patient Demographics</h3>
+            <h3 className="text-lg font-medium">
+              {isEnglish ? "Patient Demographics" : "Demografické údaje pacienta"}
+            </h3>
             <Separator />
 
             <FormField
               control={form.control}
-              name="age_at_diagnosis"
+              name="vekova_kategorie_10let_dg"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Age at Diagnosis <InfoCircle content="Patient's age when breast cancer was diagnosed." />
+                    {isEnglish ? "Age at Diagnosis" : "Věk při diagnóze"}{" "}
+                    <InfoCircle
+                      content={
+                        isEnglish
+                          ? "Patient's age when breast cancer was diagnosed."
+                          : "Věk pacienta při diagnóze rakoviny prsu."
+                      }
+                    />
                   </FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
-                  <FormDescription>Age must be between 18 and 100 years.</FormDescription>
+                  <FormDescription>
+                    {isEnglish ? "Age must be between 20 and 100 years." : "Věk musí být mezi 20 a 100 lety."}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -91,15 +279,27 @@ export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
 
             <FormField
               control={form.control}
-              name="BMI"
+              name="rok_dg"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    BMI <InfoCircle content="Body Mass Index (weight in kg / height in m²)" />
+                    {isEnglish ? "Year of Diagnosis" : "Rok diagnózy"}{" "}
+                    <InfoCircle
+                      content={
+                        isEnglish
+                          ? "The year when breast cancer was diagnosed."
+                          : "Rok, kdy byla diagnostikována rakovina prsu."
+                      }
+                    />
                   </FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.1" {...field} />
+                    <Input type="number" {...field} />
                   </FormControl>
+                  <FormDescription>
+                    {isEnglish
+                      ? `Year must be between 1900 and ${currentYear}.`
+                      : `Rok musí být mezi 1900 a ${currentYear}.`}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -107,75 +307,33 @@ export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
 
             <FormField
               control={form.control}
-              name="menopausal_status"
+              name="lateralita_kod"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Menopausal Status <InfoCircle content="Patient's menopausal status at diagnosis." />
+                    {isEnglish ? "Laterality" : "Lateralita"}{" "}
+                    <InfoCircle
+                      content={
+                        isEnglish
+                          ? "The side of the body where the tumor is located."
+                          : "Strana těla, kde se nachází nádor."
+                      }
+                    />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={(value) => field.onChange(Number.parseInt(value))}
+                    defaultValue={field.value.toString()}
+                  >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select menopausal status" />
+                        <SelectValue placeholder={isEnglish ? "Select laterality" : "Vyberte lateralitu"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Premenopausal">Premenopausal</SelectItem>
-                      <SelectItem value="Perimenopausal">Perimenopausal</SelectItem>
-                      <SelectItem value="Postmenopausal">Postmenopausal</SelectItem>
-                      <SelectItem value="Unknown">Unknown</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="alcohol_smoking"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Alcohol/Smoking Status <InfoCircle content="Patient's alcohol consumption and smoking habits." />
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Non-smoker">Non-smoker</SelectItem>
-                      <SelectItem value="Former smoker">Former smoker</SelectItem>
-                      <SelectItem value="Current smoker">Current smoker</SelectItem>
-                      <SelectItem value="Heavy drinker">Heavy drinker</SelectItem>
-                      <SelectItem value="Smoker and drinker">Smoker and drinker</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="family_history"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Family History <InfoCircle content="History of breast cancer in first-degree relatives." />
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select option" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Yes">Yes</SelectItem>
-                      <SelectItem value="No">No</SelectItem>
-                      <SelectItem value="Unknown">Unknown</SelectItem>
+                      <SelectItem value="1">{isEnglish ? "Right" : "Pravá"}</SelectItem>
+                      <SelectItem value="2">{isEnglish ? "Left" : "Levá"}</SelectItem>
+                      <SelectItem value="3">{isEnglish ? "Both" : "Obě"}</SelectItem>
+                      <SelectItem value="4">{isEnglish ? "Not applicable" : "Neaplikovatelné"}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -186,32 +344,21 @@ export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
 
           {/* Tumor Characteristics */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Tumor Characteristics</h3>
+            <h3 className="text-lg font-medium">{isEnglish ? "Tumor Characteristics" : "Charakteristiky nádoru"}</h3>
             <Separator />
 
             <FormField
               control={form.control}
-              name="tumor_size"
+              name="grading"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Tumor Size (mm) <InfoCircle content="Size of the primary tumor in millimeters." />
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.1" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="tumor_grade"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Tumor Grade <InfoCircle content="Histological grade of the tumor (1-3)." />
+                    {isEnglish ? "Tumor Grade" : "Stupeň nádoru"}{" "}
+                    <InfoCircle
+                      content={
+                        isEnglish ? "Histological grade of the tumor (1-3)." : "Histologický stupeň nádoru (1-3)."
+                      }
+                    />
                   </FormLabel>
                   <Select
                     onValueChange={(value) => field.onChange(Number.parseInt(value))}
@@ -219,13 +366,13 @@ export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select grade" />
+                        <SelectValue placeholder={isEnglish ? "Select grade" : "Vyberte stupeň"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="1">Grade 1</SelectItem>
-                      <SelectItem value="2">Grade 2</SelectItem>
-                      <SelectItem value="3">Grade 3</SelectItem>
+                      <SelectItem value="1">{isEnglish ? "Grade 1" : "Stupeň 1"}</SelectItem>
+                      <SelectItem value="2">{isEnglish ? "Grade 2" : "Stupeň 2"}</SelectItem>
+                      <SelectItem value="3">{isEnglish ? "Grade 3" : "Stupeň 3"}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -233,248 +380,83 @@ export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="histology_type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Histology Type <InfoCircle content="Histological classification of the tumor." />
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Invasive ductal">Invasive ductal</SelectItem>
-                      <SelectItem value="Invasive lobular">Invasive lobular</SelectItem>
-                      <SelectItem value="Mixed ductal and lobular">Mixed ductal and lobular</SelectItem>
-                      <SelectItem value="Medullary">Medullary</SelectItem>
-                      <SelectItem value="Mucinous">Mucinous</SelectItem>
-                      <SelectItem value="Tubular">Tubular</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Stage as radio buttons - only show 1, 2, 3 */}
+            <div className="space-y-2">
+              <FormLabel>
+                {isEnglish ? "Stage" : "Stadium"}{" "}
+                <InfoCircle
+                  content={isEnglish ? "Clinical stage of the cancer (1-3)." : "Klinické stadium rakoviny (1-3)."}
+                />
+              </FormLabel>
+              <div className="space-y-2 mt-2">
+                <label className="text-sm font-medium flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="stage-selection"
+                    className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                    onChange={() => handleStageSelection("stage_1")}
+                    checked={selectedStage === "stage_1"}
+                  />
+                  <span>{isEnglish ? "Stage 1" : "Stadium 1"}</span>
+                </label>
 
-            <FormField
-              control={form.control}
-              name="ki67"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Ki-67 (%) <InfoCircle content="Proliferation marker, percentage of positive cells." />
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.1" {...field} />
-                  </FormControl>
-                  <FormDescription>Value between 0 and 100%.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
+                <label className="text-sm font-medium flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="stage-selection"
+                    className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                    onChange={() => handleStageSelection("stage_2")}
+                    checked={selectedStage === "stage_2"}
+                  />
+                  <span>{isEnglish ? "Stage 2" : "Stadium 2"}</span>
+                </label>
 
-        {/* Staging */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Staging</h3>
-          <Separator />
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <FormField
-              control={form.control}
-              name="N_stage"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    N Stage <InfoCircle content="Lymph node involvement status." />
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select N stage" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="N0">N0</SelectItem>
-                      <SelectItem value="N1">N1</SelectItem>
-                      <SelectItem value="N2">N2</SelectItem>
-                      <SelectItem value="N3">N3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="M_stage"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    M Stage <InfoCircle content="Distant metastasis status." />
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select M stage" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="M0">M0</SelectItem>
-                      <SelectItem value="M1">M1</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="clinical_stage"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Clinical Stage <InfoCircle content="Overall cancer stage at diagnosis." />
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select clinical stage" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Stage 0">Stage 0</SelectItem>
-                      <SelectItem value="Stage I">Stage I</SelectItem>
-                      <SelectItem value="Stage II">Stage II</SelectItem>
-                      <SelectItem value="Stage III">Stage III</SelectItem>
-                      <SelectItem value="Stage IV">Stage IV</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
-
-        {/* Receptor Status */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Receptor Status</h3>
-          <Separator />
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <FormField
-              control={form.control}
-              name="ER_status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    ER Status <InfoCircle content="Estrogen receptor status of the tumor." />
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select ER status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Positive">Positive</SelectItem>
-                      <SelectItem value="Negative">Negative</SelectItem>
-                      <SelectItem value="Unknown">Unknown</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="PR_status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    PR Status <InfoCircle content="Progesterone receptor status of the tumor." />
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select PR status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Positive">Positive</SelectItem>
-                      <SelectItem value="Negative">Negative</SelectItem>
-                      <SelectItem value="Unknown">Unknown</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="HER2_status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    HER2 Status <InfoCircle content="Human epidermal growth factor receptor 2 status." />
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select HER2 status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Positive">Positive</SelectItem>
-                      <SelectItem value="Negative">Negative</SelectItem>
-                      <SelectItem value="Equivocal">Equivocal</SelectItem>
-                      <SelectItem value="Unknown">Unknown</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <label className="text-sm font-medium flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="stage-selection"
+                    className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                    onChange={() => handleStageSelection("stage_3")}
+                    checked={selectedStage === "stage_3"}
+                  />
+                  <span>{isEnglish ? "Stage 3" : "Stadium 3"}</span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Treatment */}
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">Treatment</h3>
+          <h3 className="text-lg font-medium">{isEnglish ? "Treatment" : "Léčba"}</h3>
           <Separator />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <FormField
               control={form.control}
-              name="surgery_type"
+              name="je_nl_chemo"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Surgery Type <InfoCircle content="Type of surgical procedure performed." />
+                    {isEnglish ? "Chemotherapy" : "Chemoterapie"}{" "}
+                    <InfoCircle
+                      content={
+                        isEnglish ? "Whether patient received chemotherapy." : "Zda pacient podstoupil chemoterapii."
+                      }
+                    />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={(value) => field.onChange(Number.parseInt(value))}
+                    defaultValue={field.value.toString()}
+                  >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select surgery type" />
+                        <SelectValue placeholder={isEnglish ? "Select option" : "Vyberte možnost"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Lumpectomy">Lumpectomy</SelectItem>
-                      <SelectItem value="Mastectomy">Mastectomy</SelectItem>
-                      <SelectItem value="Bilateral mastectomy">Bilateral mastectomy</SelectItem>
-                      <SelectItem value="None">None</SelectItem>
+                      <SelectItem value="1">{isEnglish ? "Yes" : "Ano"}</SelectItem>
+                      <SelectItem value="0">{isEnglish ? "No" : "Ne"}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -484,21 +466,31 @@ export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
 
             <FormField
               control={form.control}
-              name="chemo"
+              name="je_nl_target"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Chemotherapy <InfoCircle content="Whether patient received chemotherapy." />
+                    {isEnglish ? "Targeted Therapy" : "Cílená terapie"}{" "}
+                    <InfoCircle
+                      content={
+                        isEnglish
+                          ? "Whether patient received targeted therapy."
+                          : "Zda pacient podstoupil cílenou terapii."
+                      }
+                    />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={(value) => field.onChange(Number.parseInt(value))}
+                    defaultValue={field.value.toString()}
+                  >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select option" />
+                        <SelectValue placeholder={isEnglish ? "Select option" : "Vyberte možnost"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Yes">Yes</SelectItem>
-                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="1">{isEnglish ? "Yes" : "Ano"}</SelectItem>
+                      <SelectItem value="0">{isEnglish ? "No" : "Ne"}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -508,45 +500,29 @@ export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
 
             <FormField
               control={form.control}
-              name="radio"
+              name="je_nl_radio"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Radiotherapy <InfoCircle content="Whether patient received radiotherapy." />
+                    {isEnglish ? "Radiotherapy" : "Radioterapie"}{" "}
+                    <InfoCircle
+                      content={
+                        isEnglish ? "Whether patient received radiotherapy." : "Zda pacient podstoupil radioterapii."
+                      }
+                    />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={(value) => field.onChange(Number.parseInt(value))}
+                    defaultValue={field.value.toString()}
+                  >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select option" />
+                        <SelectValue placeholder={isEnglish ? "Select option" : "Vyberte možnost"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Yes">Yes</SelectItem>
-                      <SelectItem value="No">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="hormone_therapy"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Hormone Therapy <InfoCircle content="Whether patient received hormone therapy." />
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select option" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Yes">Yes</SelectItem>
-                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="1">{isEnglish ? "Yes" : "Ano"}</SelectItem>
+                      <SelectItem value="0">{isEnglish ? "No" : "Ne"}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -554,6 +530,378 @@ export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
               )}
             />
           </div>
+        </div>
+
+        {/* TNM Classification */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">{isEnglish ? "TNM Classification" : "TNM Klasifikace"}</h3>
+          <Separator />
+
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="t-classification">
+              <AccordionTrigger>{isEnglish ? "T - Primary Tumor" : "T - Primární nádor"}</AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {isEnglish
+                      ? "Select the appropriate T classification for the primary tumor."
+                      : "Vyberte příslušnou T klasifikaci pro primární nádor."}
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_1")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_1"}
+                        />
+                        <span>T1 - {isEnglish ? "Tumor ≤ 2 cm" : "Nádor ≤ 2 cm"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_1a")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_1a"}
+                        />
+                        <span>T1a - {isEnglish ? "Tumor > 0.1 cm but ≤ 0.5 cm" : "Nádor > 0,1 cm ale ≤ 0,5 cm"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_1b")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_1b"}
+                        />
+                        <span>T1b - {isEnglish ? "Tumor > 0.5 cm but ≤ 1 cm" : "Nádor > 0,5 cm ale ≤ 1 cm"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_1c")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_1c"}
+                        />
+                        <span>T1c - {isEnglish ? "Tumor > 1 cm but ≤ 2 cm" : "Nádor > 1 cm ale ≤ 2 cm"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_2")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_2"}
+                        />
+                        <span>T2 - {isEnglish ? "Tumor > 2 cm but ≤ 5 cm" : "Nádor > 2 cm ale ≤ 5 cm"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_3")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_3"}
+                        />
+                        <span>T3 - {isEnglish ? "Tumor > 5 cm" : "Nádor > 5 cm"}</span>
+                      </label>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_4")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_4"}
+                        />
+                        <span>
+                          T4 -{" "}
+                          {isEnglish
+                            ? "Tumor of any size with extension to chest wall and/or skin"
+                            : "Nádor jakékoliv velikosti s rozšířením do hrudní stěny a/nebo kůže"}
+                        </span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_4a")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_4a"}
+                        />
+                        <span>T4a - {isEnglish ? "Extension to chest wall" : "Rozšíření do hrudní stěny"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_4b")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_4b"}
+                        />
+                        <span>T4b - {isEnglish ? "Edema or ulceration of the skin" : "Edém nebo ulcerace kůže"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_4c")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_4c"}
+                        />
+                        <span>T4c - {isEnglish ? "Both 4a and 4b" : "Obojí 4a a 4b"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_4d")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_4d"}
+                        />
+                        <span>T4d - {isEnglish ? "Inflammatory carcinoma" : "Inflamatorní karcinom"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="t-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMTSelection("tnm_klasifikace_t_kod_is")}
+                          checked={selectedTClassification === "tnm_klasifikace_t_kod_is"}
+                        />
+                        <span>Tis - {isEnglish ? "Carcinoma in situ" : "Karcinom in situ"}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="n-classification">
+              <AccordionTrigger>
+                {isEnglish ? "N - Regional Lymph Nodes" : "N - Regionální lymfatické uzliny"}
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {isEnglish
+                      ? "Select the appropriate N classification for regional lymph nodes."
+                      : "Vyberte příslušnou N klasifikaci pro regionální lymfatické uzliny."}
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="n-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMNSelection("tnm_klasifikace_n_kod_1")}
+                          checked={selectedNClassification === "tnm_klasifikace_n_kod_1"}
+                        />
+                        <span>
+                          N1 -{" "}
+                          {isEnglish
+                            ? "Metastasis in movable ipsilateral axillary lymph node(s)"
+                            : "Metastázy v pohyblivých stejnostranných axilárních lymfatických uzlinách"}
+                        </span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="n-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMNSelection("tnm_klasifikace_n_kod_1a")}
+                          checked={selectedNClassification === "tnm_klasifikace_n_kod_1a"}
+                        />
+                        <span>N1a - {isEnglish ? "Micrometastasis" : "Mikrometastázy"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="n-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMNSelection("tnm_klasifikace_n_kod_1b")}
+                          checked={selectedNClassification === "tnm_klasifikace_n_kod_1b"}
+                        />
+                        <span>N1b - {isEnglish ? "Macrometastasis" : "Makrometastázy"}</span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="n-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMNSelection("tnm_klasifikace_n_kod_2")}
+                          checked={selectedNClassification === "tnm_klasifikace_n_kod_2"}
+                        />
+                        <span>
+                          N2 -{" "}
+                          {isEnglish
+                            ? "Metastasis in fixed ipsilateral axillary lymph node(s)"
+                            : "Metastázy ve fixovaných stejnostranných axilárních lymfatických uzlinách"}
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="n-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMNSelection("tnm_klasifikace_n_kod_2a")}
+                          checked={selectedNClassification === "tnm_klasifikace_n_kod_2a"}
+                        />
+                        <span>
+                          N2a -{" "}
+                          {isEnglish
+                            ? "Metastasis in axillary lymph nodes fixed to one another or to other structures"
+                            : "Metastázy v axilárních lymfatických uzlinách fixovaných navzájem nebo k jiným strukturám"}
+                        </span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="n-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMNSelection("tnm_klasifikace_n_kod_3")}
+                          checked={selectedNClassification === "tnm_klasifikace_n_kod_3"}
+                        />
+                        <span>
+                          N3 -{" "}
+                          {isEnglish
+                            ? "Metastasis in ipsilateral infraclavicular or supraclavicular lymph node(s)"
+                            : "Metastázy ve stejnostranných infraklavikulárních nebo supraklavikulárních lymfatických uzlinách"}
+                        </span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="n-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMNSelection("tnm_klasifikace_n_kod_3a")}
+                          checked={selectedNClassification === "tnm_klasifikace_n_kod_3a"}
+                        />
+                        <span>
+                          N3a -{" "}
+                          {isEnglish
+                            ? "Metastasis in infraclavicular lymph node(s)"
+                            : "Metastázy v infraklavikulárních lymfatických uzlinách"}
+                        </span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="n-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMNSelection("tnm_klasifikace_n_kod_3b")}
+                          checked={selectedNClassification === "tnm_klasifikace_n_kod_3b"}
+                        />
+                        <span>
+                          N3b -{" "}
+                          {isEnglish
+                            ? "Metastasis in internal mammary and axillary lymph nodes"
+                            : "Metastázy ve vnitřních mamárních a axilárních lymfatických uzlinách"}
+                        </span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="n-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMNSelection("tnm_klasifikace_n_kod_3c")}
+                          checked={selectedNClassification === "tnm_klasifikace_n_kod_3c"}
+                        />
+                        <span>
+                          N3c -{" "}
+                          {isEnglish
+                            ? "Metastasis in supraclavicular lymph node(s)"
+                            : "Metastázy v supraklavikulárních lymfatických uzlinách"}
+                        </span>
+                      </label>
+
+                      <label className="text-sm font-medium flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="n-classification"
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          onChange={() => handleTNMNSelection(null)}
+                          checked={selectedNClassification === null}
+                        />
+                        <span>
+                          N0 -{" "}
+                          {isEnglish
+                            ? "No regional lymph node metastasis"
+                            : "Žádné metastázy v regionálních lymfatických uzlinách"}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="m-classification">
+              <AccordionTrigger>{isEnglish ? "M - Distant Metastasis" : "M - Vzdálené metastázy"}</AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {isEnglish
+                      ? "Select the appropriate M classification for distant metastasis."
+                      : "Vyberte příslušnou M klasifikaci pro vzdálené metastázy."}
+                  </p>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="m-classification"
+                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                        onChange={() => handleTNMMSelection("tnm_klasifikace_m_kod_1")}
+                        checked={selectedMClassification === "tnm_klasifikace_m_kod_1"}
+                      />
+                      <span>M1 - {isEnglish ? "Distant metastasis" : "Vzdálené metastázy"}</span>
+                    </label>
+
+                    <label className="text-sm font-medium flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="m-classification"
+                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                        onChange={() => handleTNMMSelection(null)}
+                        checked={selectedMClassification === null}
+                      />
+                      <span>M0 - {isEnglish ? "No distant metastasis" : "Žádné vzdálené metastázy"}</span>
+                    </label>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
 
         <div className="flex justify-end">
@@ -565,10 +913,12 @@ export function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Calculating...
+                {isEnglish ? "Calculating..." : "Výpočet..."}
               </>
+            ) : isEnglish ? (
+              "Calculate Survival Probability"
             ) : (
-              "Calculate Recurrence Risk"
+              "Vypočítat pravděpodobnost recidivy"
             )}
           </Button>
         </div>

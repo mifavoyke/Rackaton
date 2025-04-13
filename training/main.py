@@ -1,42 +1,82 @@
-# from src.setup import *
-# from src.load_data import load_and_preprocess
-# from src.eda import run_eda
-# from src.train_model import train_cox_model
-# from src.predict import predict_risks
-# from src.visualise import plot_patient_curve
-# from src.export_model import save_model
-
-# # 1. Load data
-# # 2. Run EDA
-# # 3. Train model
-# # 4. Predict recurrence for one patient
-# # 5. Visualize patient curve
-# # 6. Save model
-
+# NaN-filling strategy where missing values are replaced with the "healthy baseline values"
 import pandas as pd
 from lifelines import CoxPHFitter
 from sklearn.model_selection import train_test_split
 from lifelines.utils import concordance_index
 import joblib
+import datetime
 
-df = pd.read_csv("/Users/yevahusieva/Documents/42/rackaton2025/training/synthetic_data.csv")
-df_full = df.dropna()
-categorical_cols = ['tumor_size', 'N_stage', 'M_stage', 'clinical_stage', 'histology_type', 'surgery_type']
-df_full = pd.get_dummies(df_full, columns=categorical_cols, drop_first=True)
-low_variance_cols = [col for col in df_full.columns if df_full[col].nunique() == 1]
+selected_columns = [
+    "vekova_kategorie_10let_dg",
+    "rok_dg",
+    "lateralita_kod",
+    "grading",
+    "stadium",
+    "tnm_klasifikace_t_kod",
+    "tnm_klasifikace_n_kod",
+    "tnm_klasifikace_m_kod",
+    "je_nl",
+    "time_datum_dg_to_zahajeni_nl",
+    "je_nl_chemo",
+    "je_nl_target",
+    "je_nl_radio"
+]
+df = pd.read_csv("/Users/yevahusieva/Documents/42/rackaton2025/training/data/dataset.csv")
+df = df[selected_columns]
+
+healthy_defaults = {
+    "vekova_kategorie_10let_dg": 104,
+    "lateralita_kod": 4,
+    "grading": 2,
+    "tnm_klasifikace_t_kod": "T1",     
+    "tnm_klasifikace_n_kod": "N0",
+    "tnm_klasifikace_m_kod": "M0",
+    "je_nl_chemo": 0,
+    "je_nl_target": 0,
+    "je_nl_radio": 0
+}
+for col, default in healthy_defaults.items():
+    df[col].fillna(default, inplace=True)
+
+categorical_cols = [
+    "tnm_klasifikace_t_kod",
+    "tnm_klasifikace_n_kod",
+    "tnm_klasifikace_m_kod",
+    "stadium"
+]
+current_year = datetime.datetime.now().year
+df["estimated_followup_years"] = current_year - df["rok_dg"]
+df["estimated_followup_days"] = df["estimated_followup_years"] * 365
+# FILL MISSING DURATIONS FOR CENSORED PATIENTS
+df.loc[
+    (df["je_nl"] == 0) & (df["time_datum_dg_to_zahajeni_nl"].isna()),
+    "time_datum_dg_to_zahajeni_nl"
+] = df.loc[
+    (df["je_nl"] == 0) & (df["time_datum_dg_to_zahajeni_nl"].isna()),
+    "estimated_followup_days"
+]
+# DROP TEMPORARY IMPUTATION COLUMNS
+df.drop(columns=["estimated_followup_years", "estimated_followup_days"], inplace=True)
+df_encoded = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
+
+print(df['je_nl'].value_counts(normalize=True))  # Should show something like 0: 80%, 1: 20%
+print(df[df["time_datum_dg_to_zahajeni_nl"].isna()]["je_nl"].value_counts(dropna=False))
+# print(df[df["time_datum_dg_to_zahajeni_nl"].isna()]["je_nl"].value_counts())
+
+low_variance_cols = [col for col in df_encoded.columns if df_encoded[col].nunique() == 1]
 print("Dropping low-variance cols:", low_variance_cols)
-df_full.drop(columns=low_variance_cols, inplace=True)
-train_full, test_full = train_test_split(df_full, test_size=0.2, random_state=42)
+
+train_full, test_full = train_test_split(df_encoded, test_size=0.2, random_state=42)
 print("\nCox Model with All Features:")
-cph_full = CoxPHFitter(penalizer=0.1)
-cph_full.fit(train_full, duration_col='time_to_event', event_col='event')
+cph_full = CoxPHFitter(penalizer=0.5, l1_ratio=0.0)
+cph_full.fit(train_full, duration_col='time_datum_dg_to_zahajeni_nl', event_col='je_nl')
 cph_full.print_summary()
 c_index = cph_full.concordance_index_
 print(f"Train C-index: {c_index:.3f}")
 predicted_partial_hazards = cph_full.predict_partial_hazard(test_full) # Predict on test set
-c_index_test = concordance_index(test_full['time_to_event'], -predicted_partial_hazards, test_full['event']) # Calculate test C-index
+c_index_test = concordance_index(test_full['time_datum_dg_to_zahajeni_nl'], -predicted_partial_hazards, test_full['je_nl']) # Calculate test C-index
 print(f"Test C-index: {c_index_test:.3f}")
-joblib.dump(cph_full, '../backend/model/cox_model.pkl')
+joblib.dump(cph_full, 'cox_model.pkl')
 
 # 🧬 1. Demographic & Identification Data
 # English	                                    Czech
