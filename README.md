@@ -30,17 +30,17 @@ The following features and expansions are being considered for future iterations
 - 🧠 **LLM integration** to auto-comment and interpret hazard ratios for each case
 - 🧾 **Report integration with electronic medical documentation systems** - compliance with current practices needed
 - 🧮 **Risk scoring by 5-year intervals** (e.g., high, moderate, low)
-- ⚰️ **Add mortality risk prediction** alongside recurrence risk
 - 🔁 **Automatic integration with UZIS**: The model could auto-run when a new patient is logged into the system, generating and sending the report to the treating physician
-- 📊 **Add more clinical and behavioral features** (e.g., genomics, physical activity, comorbidities, lifestyle) for better long-term accuracy
+- **Add mortality risk prediction** alongside recurrence risk
+- **Add more clinical and behavioral features** (e.g., genomics, physical activity, comorbidities, lifestyle) for better long-term accuracy
 
 ---
 
 ## ⚠️ Limitations
 
-- 🇨🇿 Currently, **no national recurrence registry** exists in Czechia. The data had to be manually derived from proxy indicators, which may introduce **bias**.
-- 🧬 The model was trained on **narrow, specific patient characteristics**, which could cause it to **overestimate** risks for broader patient groups.
-- 📉 Some clinical inputs were imputed based on domain heuristics due to missing data.
+- Currently, **no national recurrence registry** exists in Czechia. The data had to be manually derived from proxy indicators, which may introduce **bias**.
+- The model was trained on **narrow, specific patient characteristics**, which could cause it to **overestimate** risks for broader patient groups.
+- Some clinical inputs were imputed based on domain heuristics due to missing data.
 
 ---
 
