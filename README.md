@@ -70,10 +70,6 @@ Only **user-selected variables** are included in the final hazard ratio table to
 
 ---
 
-## 📁 Project Structure
-
-rekurze/ ├── frontend/ # Next.js app (user interface) │ └── components/ # UI components │ └── pages/ # Routes and API calls ├── backend/ # FastAPI app (API + model) │ └── model/ # Saved Cox model (.pkl) │ └── main.py # API endpoints └── README.md
-
 ## 📦 Installation
 
 ### 1. Backend
