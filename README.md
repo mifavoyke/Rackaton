@@ -70,30 +70,6 @@ Only **user-selected variables** are included in the final hazard ratio table to
 
 ---
 
-## 📦 Installation
-
-### 1. Backend
-
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-### 2. Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Make sure both the frontend and backend are running concurrently.
-
----
-
 ## 💖 Dedication
 
 This project is **dedicated to my mom**, who overcame breast cancer in 2023.  
