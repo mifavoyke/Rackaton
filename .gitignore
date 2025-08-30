@@ -1,2 +1,5 @@
 # Ignore python virtual enviroment
 ./rekurze/backend/venv
+
+# Ignore the large datasets
+./training/data
