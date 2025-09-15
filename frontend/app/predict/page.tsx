@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/alert"
 import { PredictionForm } from "@/components/prediction-form"
 import { PredictionResults } from "@/components/prediction-results"
-import { AlertCircle } from "lucide-react"
+// Icon library removed
 
 export default function PredictPage() {
   const [result, setResult] = useState<{ [key: string]: number } | null>(null)
@@ -17,14 +17,14 @@ export default function PredictPage() {
   const [activeTab, setActiveTab] = useState("form")
   const tabsRef = useRef<HTMLDivElement>(null)
 
-  const handleFormSubmit = async (formData: any) => {
+  const handleFormSubmit = async (formData: Record<string, number>) => {
     setIsLoading(true)
     try {
       // Store the diagnosis year for the chart
       setDiagnosisYear(formData.rok_dg)
 
-      // Make API call to your backend
-      const response = await fetch("http://127.0.0.1:8000/predict/", {
+  const base = process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000"
+  const response = await fetch(`${base}/predict/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -106,7 +106,7 @@ export default function PredictPage() {
         <h1 className="text-3xl font-bold mb-6">Breast Cancer Recurrence Prediction Tool</h1>
 
         <Alert className="mb-6">
-          <AlertCircle className="h-4 w-4" />
+          <div className="h-4 w-4 font-bold" aria-hidden>!</div>
           <AlertTitle>Important</AlertTitle>
           <AlertDescription>
             This tool predicts the risk of breast cancer recurrence over 10 years based on patient and tumor
@@ -137,7 +137,7 @@ export default function PredictPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <PredictionForm onSubmit={handleFormSubmit} isLoading={isLoading} lang="en" />
+                  <PredictionForm onSubmit={handleFormSubmit} isLoading={isLoading} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -152,7 +152,6 @@ export default function PredictPage() {
                     <PredictionResults
                       result={result}
                       coxModel={coxModel}
-                      lang="en"
                       diagnosisYear={diagnosisYear || undefined}
                     />
                   )}

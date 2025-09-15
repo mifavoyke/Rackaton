@@ -1,13 +1,14 @@
 import { Button } from "../components/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/card"
 import Link from "next/link"
-import { ArrowRight, HeartPulse } from 'lucide-react'
-export default function Home() {
 
+export default function Home() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="flex flex-col items-center justify-center space-y-8 text-center">
-        <HeartPulse className="h-24 w-24 text-pink-500 dark:text-pink-400" />
+        <div className="h-24 w-24 flex items-center justify-center rounded-full bg-pink-100 dark:bg-pink-900 text-pink-600 text-5xl select-none">
+          ♥
+        </div>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
           Rackaton: Predict Your Health Outcomes
         </h1>
@@ -15,18 +16,17 @@ export default function Home() {
           Use our evidence-based, personalized tool to predict your health outcomes and get clinical support.
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
-          <Button
-            asChild
-            size="lg"
-            className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
-          >
-            <Link href="/en/predict">
-              Start Predicting <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link href="/en/about">Learn More</Link>
-          </Button>
+          <Link href="/predict">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
+            >
+              Start Predicting →
+            </Button>
+          </Link>
+          <Link href="/about">
+            <Button variant="outline" size="lg">Learn More</Button>
+          </Link>
         </div>
       </div>
 

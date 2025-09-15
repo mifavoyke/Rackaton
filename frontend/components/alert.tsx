@@ -1,52 +1,24 @@
 import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
 
+interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
+  tone?: "default" | "destructive"
+}
 
-const alertVariants = cva(
-  "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
-  {
-    variants: {
-      variant: {
-        default: "bg-card text-card-foreground",
-        destructive:
-          "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
+export function Alert({ className = "", tone = "default", ...props }: AlertProps) {
+  const base = "relative w-full rounded border px-4 py-3 text-sm flex gap-3 items-start";
+  const tones: Record<string, string> = {
+    default: "bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100",
+    destructive: "bg-white text-red-700 border-red-300 dark:bg-gray-900 dark:text-red-400 dark:border-red-600"
   }
-)
-
-function Alert({ className, variant, ...props }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
-  return (
-    <div
-      data-slot="alert"
-      role="alert"
-      className={alertVariants({ variant }) + (className ? ` ${className}` : "")}
-      {...props}
-    />
-  )
+  return <div role="alert" data-slot="alert" className={[base, tones[tone] || tones.default, className].join(" ")} {...props} />
 }
 
-function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-title"
-      className={"col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight" + (className ? ` ${className}` : "")}
-      {...props}
-    />
-  )
+export function AlertTitle({ className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div data-slot="alert-title" className={["font-semibold", className].join(" ")} {...props} />
 }
 
-function AlertDescription({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-description"
-      className={"text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed" + (className ? ` ${className}` : "")}
-      {...props}
-    />
-  )
+export function AlertDescription({ className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div data-slot="alert-description" className={["text-sm text-gray-600 dark:text-gray-300", className].join(" ")} {...props} />
 }
 
-export { Alert, AlertTitle, AlertDescription }
+export default Alert
