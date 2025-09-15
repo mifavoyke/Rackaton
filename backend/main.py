@@ -20,7 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-model = joblib.load("model/cox_model.pkl")
+model = joblib.load("backend/model/cox_model.pkl")
 class PatientData(BaseModel):
     vekova_kategorie_10let_dg: int
     lateralita_kod: int

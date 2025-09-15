@@ -3,3 +3,5 @@
 
 # Ignore the large datasets
 ./training/data
+
+backend/__pycache__/
