@@ -1,7 +1,8 @@
 "use client"
 
-import { Card, CardContent } from "@/components/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { InfoCircle } from "@/components/info-circle"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 
 interface SurvivalResult {
   [key: string]: number
@@ -18,11 +19,12 @@ interface CoxModelResult {
 interface PredictionResultsProps {
   result: SurvivalResult
   coxModel?: CoxModelResult[] | null
+  lang: string
   diagnosisYear?: number
 }
 
-export function PredictionResults({ result, coxModel, diagnosisYear }: PredictionResultsProps) {
-  const isEnglish = true
+export function PredictionResults({ result, coxModel, lang, diagnosisYear }: PredictionResultsProps) {
+  const isEnglish = lang === "en"
   const currentYear = new Date().getFullYear()
 
   console.log("Result data:", result)
@@ -89,18 +91,73 @@ export function PredictionResults({ result, coxModel, diagnosisYear }: Predictio
     <div className="space-y-6">
       <div className="bg-muted p-4 rounded-lg">
         <div className="flex items-center mb-2">
-          <h3 className="text-lg font-medium">Recurrence Risk Over Time</h3>
-          <InfoCircle content="This list shows the estimated risk of cancer recurrence over the next 10 years after diagnosis." />
+          <h3 className="text-lg font-medium">
+            {isEnglish ? "Recurrence Risk Over Time" : "Riziko recidivy v průběhu času"}
+          </h3>
+          <InfoCircle
+            className="ml-2"
+            content={
+              isEnglish
+                ? "This chart shows the estimated risk of cancer recurrence over the next 10 years after diagnosis."
+                : "Tento graf ukazuje odhadované riziko recidivy rakoviny v průběhu 10 let po diagnóze."
+            }
+          />
         </div>
-        <ul className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          {chartData.map(point => (
-            <li key={point.year} className="flex flex-col p-3 rounded border">
-              <span className="font-medium">Year {point.year}</span>
-              <span className="text-pink-600 font-semibold">{point.recurrence.toFixed(1)}%</span>
-              {diagnosisYear && <span className="text-xs text-muted-foreground">{point.calendarYear}</span>}
-            </li>
-          ))}
-        </ul>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={chartData}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey={diagnosisYear ? "calendarYear" : "year"}
+                label={{
+                  value: diagnosisYear
+                    ? isEnglish
+                      ? "Calendar Year"
+                      : "Kalendářní rok"
+                    : isEnglish
+                      ? "Years after diagnosis"
+                      : "Roky po diagnóze",
+                  position: "insideBottom",
+                  offset: -5,
+                }}
+              />
+              <YAxis
+                domain={[0, 100]}
+                label={{
+                  value: isEnglish ? "Recurrence Risk (%)" : "Riziko recidivy (%)",
+                  angle: -90,
+                  position: "insideLeft",
+                }}
+              />
+              <Tooltip
+                formatter={(value) => [`${value.toFixed(1)}%`, isEnglish ? "Recurrence Risk" : "Riziko recidivy"]}
+                labelFormatter={(label) =>
+                  diagnosisYear
+                    ? `${isEnglish ? "Year" : "Rok"} ${label}`
+                    : `${isEnglish ? "Year" : "Rok"} ${label} ${isEnglish ? "after diagnosis" : "po diagnóze"}`
+                }
+              />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="recurrence"
+                name={isEnglish ? "Recurrence Risk" : "Riziko recidivy"}
+                stroke="#ec4899"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[1, 5, 10].map((year) => {
@@ -116,7 +173,7 @@ export function PredictionResults({ result, coxModel, diagnosisYear }: Predictio
             <Card key={yearKey} className="overflow-hidden">
               <CardContent className="p-6">
                 <div className="text-sm text-muted-foreground mb-2">
-                  {year}-Year Recurrence Risk
+                  {isEnglish ? `${year}-Year Recurrence Risk` : `Riziko recidivy za ${year} let`}
                 </div>
                 <div className="flex items-baseline space-x-2">
                   <div className="text-3xl font-bold">{recurrenceValue.toFixed(1)}%</div>
@@ -137,8 +194,17 @@ export function PredictionResults({ result, coxModel, diagnosisYear }: Predictio
       {displayCoxModel && (
         <div className="bg-muted p-4 rounded-lg">
           <div className="flex items-center mb-4">
-            <h3 className="text-lg font-medium">Cox Proportional Hazards Model</h3>
-            <InfoCircle content="This table shows the hazard ratios and statistical significance of various factors in the prediction model." />
+            <h3 className="text-lg font-medium">
+              {isEnglish ? "Cox Proportional Hazards Model" : "Cox model proporcionálních rizik"}
+            </h3>
+            <InfoCircle
+              className="ml-2"
+              content={
+                isEnglish
+                  ? "This table shows the hazard ratios and statistical significance of various factors in the prediction model."
+                  : "Tato tabulka ukazuje poměry rizik a statistickou významnost různých faktorů v predikčním modelu."
+              }
+            />
           </div>
 
           <div className="overflow-x-auto">
@@ -149,19 +215,19 @@ export function PredictionResults({ result, coxModel, diagnosisYear }: Predictio
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    Variable
+                    {isEnglish ? "Variable" : "Proměnná"}
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    Hazard Ratio
+                    {isEnglish ? "Hazard Ratio" : "Poměr rizik"}
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    P-value
+                    {isEnglish ? "P-value" : "P-hodnota"}
                   </th>
                 </tr>
               </thead>
@@ -190,24 +256,32 @@ export function PredictionResults({ result, coxModel, diagnosisYear }: Predictio
       )}
 
       <div className="bg-muted p-4 rounded-lg">
-  <h3 className="text-lg font-medium mb-2">Interpretation</h3>
+        <h3 className="text-lg font-medium mb-2">{isEnglish ? "Interpretation" : "Interpretace"}</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          These results represent the estimated risk of breast cancer recurrence based on the provided patient and tumor characteristics using a Cox Proportional Hazards model.
+          {isEnglish
+            ? "These results represent the estimated risk of breast cancer recurrence based on the provided patient and tumor characteristics using a Cox Proportional Hazards model."
+            : "Tyto výsledky představují odhadované riziko recidivy rakoviny prsu na základě poskytnutých charakteristik pacienta a nádoru s použitím Cox modelu proporcionálních rizik."}
         </p>
         <div className="text-sm space-y-2">
           <p>
-            The recurrence curve shows the risk of cancer returning over time. Lower values indicate better prognosis.
+            {isEnglish
+              ? "The recurrence curve shows the risk of cancer returning over time. Lower values indicate better prognosis."
+              : "Křivka recidivy ukazuje riziko návratu rakoviny v průběhu času. Nižší hodnoty indikují lepší prognózu."}
           </p>
           <p>
-            The hazard ratios in the Cox model indicate the relative risk associated with each factor. Values greater than 1 indicate increased risk, while values less than 1 indicate decreased risk.
+            {isEnglish
+              ? "The hazard ratios in the Cox model indicate the relative risk associated with each factor. Values greater than 1 indicate increased risk, while values less than 1 indicate decreased risk."
+              : "Poměry rizik v Cox modelu indikují relativní riziko spojené s každým faktorem. Hodnoty větší než 1 indikují zvýšené riziko, zatímco hodnoty menší než 1 indikují snížené riziko."}
           </p>
         </div>
       </div>
 
       <div className="text-sm text-muted-foreground">
-  <p className="font-medium">Important Note:</p>
+        <p className="font-medium">{isEnglish ? "Important Note:" : "Důležitá poznámka:"}</p>
         <p>
-          These predictions are estimates based on population data and should be interpreted by healthcare professionals in the context of the individual patient's overall clinical picture. Treatment decisions should not be based solely on these results.
+          {isEnglish
+            ? "These predictions are estimates based on population data and should be interpreted by healthcare professionals in the context of the individual patient's overall clinical picture. Treatment decisions should not be based solely on these results."
+            : "Tyto predikce jsou odhady založené na populačních datech a měly by být interpretovány zdravotnickými pracovníky v kontextu celkového klinického obrazu jednotlivého pacienta. Rozhodnutí o léčbě by neměla být založena pouze na těchto výsledcích."}
         </p>
       </div>
     </div>
